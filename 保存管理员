@@ -80,7 +80,7 @@ local SaveManager = {} do
 
 	function SaveManager:Save(name)
 		if (not name) then
-			return false, "未选择配置文件"
+			return false, "no config file is selected"
 		end
 
 		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
@@ -98,7 +98,7 @@ local SaveManager = {} do
 
 		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
 		if not success then
-			return false, "数据编码失败"
+			return false, "failed to encode data"
 		end
 
 		writefile(fullPath, encoded)
@@ -107,7 +107,7 @@ local SaveManager = {} do
 
 	function SaveManager:Load(name)
 		if (not name) then
-			return false, "未选择配置文件"
+			return false, "no config file is selected"
 		end
 		
 		local file = self.Folder .. "/settings/" .. name .. ".json"
@@ -127,7 +127,7 @@ local SaveManager = {} do
 
 	function SaveManager:IgnoreThemeSettings()
 		self:SetIgnoreIndexes({ 
-			"界面主题", "切换", "透明切换", "菜单键绑定"
+			"InterfaceTheme", "AcrylicToggle", "TransparentToggle", "MenuKeybind"
 		})
 	end
 
@@ -185,17 +185,17 @@ local SaveManager = {} do
 			local success, err = self:Load(name)
 			if not success then
 				return self.Library:Notify({
-					Title = "界面",
-					Content = "配置加载器",
-					SubContent = "无法加载自动加载配置: " .. err,
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load autoload config: " .. err,
 					Duration = 7
 				})
 			end
 
 			self.Library:Notify({
-				Title = "界面",
-				Content = "配置加载器",
-				SubContent = string.format("自动加载配置 %q", name),
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Auto loaded config %q", name),
 				Duration = 7
 			})
 		end
@@ -204,10 +204,10 @@ local SaveManager = {} do
 	function SaveManager:BuildConfigSection(tab)
 		assert(self.Library, "Must set SaveManager.Library")
 
-		local section = tab:AddSection("配置")
+		local section = tab:AddSection("Configuration")
 
-		section:AddInput("保存管理器_配置名称",    { Title = "配置名称" })
-		section:AddDropdown("保存管理器_配置列表", { Title = "配置列表", Values = self:RefreshConfigList(), AllowNull = true })
+		section:AddInput("SaveManager_ConfigName",    { Title = "配置名称" })
+		section:AddDropdown("SaveManager_ConfigList", { Title = "配置列表", Values = self:RefreshConfigList(), AllowNull = true })
 
 		section:AddButton({
             Title = "创建配置",
@@ -216,9 +216,9 @@ local SaveManager = {} do
 
                 if name:gsub(" ", "") == "" then 
                     return self.Library:Notify({
-						Title = "界面",
-						Content = "配置加载器",
-						SubContent = "无效的配置名称 (空)",
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Invalid config name (empty)",
 						Duration = 7
 					})
                 end
@@ -226,17 +226,17 @@ local SaveManager = {} do
                 local success, err = self:Save(name)
                 if not success then
                     return self.Library:Notify({
-						Title = "界面",
-						Content = "配置加载器",
-						SubContent = "保存配置失败: " .. err,
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Failed to save config: " .. err,
 						Duration = 7
 					})
                 end
 
 				self.Library:Notify({
-					Title = "界面",
-					Content = "配置加载器",
-					SubContent = string.format("创建配置 %q", name),
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = string.format("Created config %q", name),
 					Duration = 7
 				})
 
@@ -251,17 +251,17 @@ local SaveManager = {} do
 			local success, err = self:Load(name)
 			if not success then
 				return self.Library:Notify({
-					Title = "界面",
-					Content = "配置加载器",
-					SubContent = "加载配置失败: " .. err,
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load config: " .. err,
 					Duration = 7
 				})
 			end
 
 			self.Library:Notify({
-				Title = "界面",
-				Content = "配置加载器",
-				SubContent = string.format("已加载配置 %q", name),
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Loaded config %q", name),
 				Duration = 7
 			})
 		end})
@@ -272,17 +272,17 @@ local SaveManager = {} do
 			local success, err = self:Save(name)
 			if not success then
 				return self.Library:Notify({
-					Title = "界面",
-					Content = "配置加载器",
-					SubContent = "无法覆盖配置: " .. err,
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to overwrite config: " .. err,
 					Duration = 7
 				})
 			end
 
 			self.Library:Notify({
-				Title = "界面",
-				Content = "配置加载器",
-				SubContent = string.format("覆盖配置 %q", name),
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Overwrote config %q", name),
 				Duration = 7
 			})
 		end})
@@ -293,14 +293,14 @@ local SaveManager = {} do
 		end})
 
 		local AutoloadButton
-		AutoloadButton = section:AddButton({Title = "设置为自动加载", Description = "当前自动加载配置: none", Callback = function()
+		AutoloadButton = section:AddButton({Title = "设置为自动加载", Description = "当前自动加载配置：无", Callback = function()
 			local name = SaveManager.Options.SaveManager_ConfigList.Value
 			writefile(self.Folder .. "/settings/autoload.txt", name)
 			AutoloadButton:SetDesc("当前自动加载配置: " .. name)
 			self.Library:Notify({
-				Title = "界面",
-				Content = "配置加载器",
-				SubContent = string.format("将 %q 设置为自动加载", name),
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Set %q to auto load", name),
 				Duration = 7
 			})
 		end})
@@ -310,7 +310,7 @@ local SaveManager = {} do
 			AutoloadButton:SetDesc("当前自动加载配置: " .. name)
 		end
 
-		SaveManager:SetIgnoreIndexes({ "保存管理器_配置列表", "保存管理器_配置名称" })
+		SaveManager:SetIgnoreIndexes({ "SaveManager_ConfigList", "SaveManager_ConfigName" })
 	end
 
 	SaveManager:BuildFolderTree()
